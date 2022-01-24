@@ -37,60 +37,60 @@ class Train
   end 
 
   def add_wagon
-    self.number_of_wagons += 1 if self.speed == 0
+    self.number_of_wagons += 1 if speed == 0
   end
 
   def del_wagon
-   self.number_of_wagons -= 1 if self.number_of_wagons >= 1 && self.speed == 0
+   self.number_of_wagons -= 1 if number_of_wagons >= 1 && speed == 0
   end 
 
   def set_route(route)
    self.route = route
    self.route_station_index = 0
-   self.current_station.receive_train(self)
+   current_station.receive_train(self)
   end
   
   def move_next
-    unless self.route 
+    unless route 
       puts "No route"
       return
     end
-    if self.route_station_index == self.route.show_route.size - 1
+    if route_station_index == route.show_route.size - 1
       puts "Last station"
       return
     end
-    self.current_station.send_train(self)
+    current_station.send_train(self)
     self.route_station_index += 1
-    self.current_station.receive_train(self)
+    current_station.receive_train(self)
   end
 
   def move_prev
-    unless self.route
+    unless route
       puts "No route"
       return
     end
-    if self.route_station_index == 0
+    if route_station_index == 0
       puts "First station"
       return
     end
-    self.current_station.send_train(self)
+    current_station.send_train(self)
     self.route_station_index -= 1
-    self.current_station.receive_train(self)
+    current_station.receive_train(self)
   end
 
   def next_station
-    return if self.route_station_index == self.route.show_route.size - 1
+    return if route_station_index == route.show_route.size - 1
   
-    self.route.show_route[self.route_station_index + 1]
+    route.show_route[route_station_index + 1]
   end
 
   def prev_station
-    return if self.route_station_index == 0
+    return if route_station_index == 0
  
-    self.route.show_route[self.route_station_index - 1]
+    route.show_route[route_station_index - 1]
   end
 
   def current_station
-   self.route.show_route[self.route_station_index]
+   route.show_route[route_station_index]
   end
 end
