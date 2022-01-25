@@ -8,26 +8,25 @@
 =end
 
 class Route
-  attr_reader :stations, :mid_stations
+  attr_reader :stations
 
   def initialize(start_station, end_station)
     @stations = [start_station, end_station]
-    @mid_stations = []
   end
 
   def add_mid_station(station)
-    @mid_stations << station
+    @stations.insert(-2, station)
   end
   
   def first
-    stations[0]
+    stations.first
   end
 
   def last
-    stations[1]
+    stations.last
   end
 
   def show_route
-    [first, *self.mid_stations, last]
+    stations
   end
 end
