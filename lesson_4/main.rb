@@ -27,6 +27,7 @@ class Main
       MENU_STATION.each {|k, v| puts "#{k} - #{v[:text]}"}
       menu_key = gets.chomp
       return if menu_key == "0"
+
       self.send(MENU_STATION[menu_key][:method])
       system "clear"
     end
@@ -111,10 +112,10 @@ attr_reader :trains_cargo, :trains_passenger, :wagons_cargo, :wagons_passenger, 
       stations_dup = stations.dup
       stations_dup = stations_dup.delete_if { |st| selected_route.show_route.include?(st) }
       if stations.any?
-      puts "ВЫБЕРИТЕ СТАНЦИЮ ДЛЯ ДОБАВЛЕНИЯ В МАРШРУТ"
-      stations_dup.each_with_index { |s, i| puts "#{i+1} - Станция #{s.name}" }
-      index = gets.chomp.to_i - 1
-      selected_route.add_mid_station(stations_dup[index])
+        puts "ВЫБЕРИТЕ СТАНЦИЮ ДЛЯ ДОБАВЛЕНИЯ В МАРШРУТ"
+        stations_dup.each_with_index { |s, i| puts "#{i+1} - Станция #{s.name}" }
+        index = gets.chomp.to_i - 1
+        selected_route.add_mid_station(stations_dup[index])
       else
         puts "ERROR - Нету станция для добавления. Добавьте еще"
       end
@@ -131,14 +132,14 @@ attr_reader :trains_cargo, :trains_passenger, :wagons_cargo, :wagons_passenger, 
       index = gets.chomp.to_i - 1
       selected_train = trains[index]
       if routes.any?
-      puts "ВЫБЕРИТЕ МАРШРУТ"
-      routes.each_with_index { |r , i| puts "#{i+1} - Маршрут из #{r.first.name} в #{r.last.name}" }
-      index = gets.chomp.to_i - 1
-      selected_route = routes[index]
-      selected_train.set_route(selected_route)
-      puts "МАРШРУТ ДОБАВЛЕН"
+        puts "ВЫБЕРИТЕ МАРШРУТ"
+        routes.each_with_index { |r , i| puts "#{i+1} - Маршрут из #{r.first.name} в #{r.last.name}" }
+        index = gets.chomp.to_i - 1
+        selected_route = routes[index]
+        selected_train.set_route(selected_route)
+        puts "МАРШРУТ ДОБАВЛЕН"
       else
-       puts "НЕТУ МАРШРУТОВ"
+        puts "НЕТУ МАРШРУТОВ"
       end
     else
      puts "ERROR - НЕТУ ПОЕЗДОВ ДЛЯ РЕДАКТИРОВАНИЯ."
