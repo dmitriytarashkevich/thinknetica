@@ -1,9 +1,11 @@
 require_relative 'factory'
 require_relative 'exception/validation_error'
+require_relative 'validate'
 
 class Wagon
   include Factory
-  
+  include Validate  
+
   attr_reader :type
 
   TYPE = %i[cargo passenger]
@@ -13,15 +15,12 @@ class Wagon
     validate!
   end
 
-  def valid?
-    validate! rescue return false
-    true
-  end
-
   protected
 
   def validate!
-    raise ValidationError, "Тип вагона не может быть nil" if type.nil?
-    raise ValidationError, "Укажите верный тип вагона (:cargo или :passenger)" unless TYPE.include?(type)
+    errors = []
+    errors << "Тип вагона не может быть nil" if type.nil?
+    errors << "Укажите верный тип вагона (:cargo или :passenger)" unless TYPE.include?(type)
+    raise ValidationError.new errors.join("\n") unless errors.empty?
   end
 end

@@ -16,10 +16,12 @@
 require_relative 'factory'
 require_relative 'instance_counter'
 require_relative 'exception/validation_error'
+require_relative 'validate'
 
 class Train
   include Factory
   include InstanceCounter
+  include Validate
 
   attr_reader :type, :number, :wagons
   attr_accessor :speed, :route, :route_station_index
@@ -111,16 +113,13 @@ class Train
    route.show_route[route_station_index]
   end
 
-  def valid?
-    validate! rescue return false
-    true
-  end
-
   protected
 
   def validate!
-    raise ValidationError, "Параметры не могут быть nil" if number.nil? || type.nil?
-    raise ValidationError, "Укажите верный тип поезда (:cargo или :passenger)" unless TYPE.include?(type)
-    raise ValidationError, "Не верный формат номера поезда" if number !~ REGEX_NUMBER
+    errors = []
+    errors << "Параметры не могут быть nil" if number.nil? || type.nil?
+    errors << "Укажите верный тип поезда (:cargo или :passenger)" unless TYPE.include?(type)
+    errors << "Не верный формат номера поезда" if number !~ REGEX_NUMBER
+    raise ValidationError.new errors.join("\n") unless errors.empty?
   end
 end

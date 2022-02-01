@@ -9,10 +9,11 @@
 
 require_relative 'instance_counter'
 require_relative 'exception/validation_error'
+require_relative 'validate'
 
 class Station
   include InstanceCounter
-
+  include Validate
 
   attr_reader :trains, :name
 
@@ -42,15 +43,12 @@ class Station
     trains.delete(train)
   end
 
-  def valid?
-    validate! rescue return false
-    true
-  end
-
   protected
   
-  def validate!     
-    raise ValidationError, 'Укажите название станции' if @name.nil? || @name.empty?
-    raise ValidationError, 'Название должно начинаться с буквы' if @name =~ /^\d/
+  def validate!
+    errors = []     
+    errors << 'Укажите название станции' if @name.nil? || @name.empty?
+    errors << 'Название должно начинаться с буквы' if @name =~ /^\d/
+    raise ValidationError.new errors.join("\n") unless errors.empty?
   end
 end

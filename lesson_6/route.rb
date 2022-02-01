@@ -8,8 +8,11 @@
 =end
 
 require_relative 'exception/validation_error'
+require_relative 'validate'
 
 class Route
+  include Validate
+
   attr_reader :stations
 
   def initialize(start_station, end_station)
@@ -33,16 +36,13 @@ class Route
     stations
   end
   
-  def valid?
-    validate! rescue return false
-    true
-  end
-
   protected
   
   def validate!
-    raise ValidationError, "Станция не должна быть nil:" if stations.include? nil
-    raise ValidationError, "Не верный тип данных, ожидается Station.class" unless stations.all?(Station)
-    raise ValidationError, "Начальная и конечная станция должны быть разные" if first == last
+    errors = []
+    errors << "Станция не должна быть nil:" if stations.include? nil
+    errors << "Не верный тип данных, ожидается Station.class" unless stations.all?(Station)
+    errors << "Начальная и конечная станция должны быть разные" if first == last
+    raise ValidationError.new errors.join("\n") unless errors.empty?
   end
 end
