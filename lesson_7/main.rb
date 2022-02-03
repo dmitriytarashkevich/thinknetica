@@ -62,6 +62,9 @@ attr_reader :trains_cargo, :trains_passenger, :wagons_cargo, :wagons_passenger, 
     stations << Station.new(name)
     puts "СТАНЦИЯ '#{name}' СОЗДАНА"
     continue_story
+  rescue ValidationError => e
+    puts e
+    retry
   end
 
   def create_cargo_train
