@@ -36,6 +36,11 @@ class Main
 
   attr_reader :trains_cargo, :trains_passenger, :wagons_cargo, :wagons_passenger, :routes, :stations
 
+  WAGON_DESCRIPTION = {
+    cargo: 'ВАГОН ГРУЗОВОЙ, ОБЪЕМ - %d м3, СВОБОДНО - %d м3',
+    passenger: 'ВАГОН ПАССАЖИРСКИЙ, КОЛ-ВО МЕСТ - %d шт, СВОБОДНО - %d шт'
+  }
+
   MENU_STATION = {
     '1' => { text: 'СОЗДАТЬ СТАНЦИЮ', method: 'create_station' },
     '2' => { text: 'СОЗДАТЬ ГРУЗОВОЙ ПОЕЗД', method: 'create_cargo_train' },
@@ -80,7 +85,7 @@ class Main
   def create_passenger_train
     print 'ВВЕДИТЕ НОМЕР ПАССАЖИРСКОГО ПОЕЗДА: '
     number = gets.chomp
-    trains_cargo << TrainPassenger.new(number)
+    trains_passenger << TrainPassenger.new(number)
     puts "ПОЕЗД '#{number}' СОЗДАН"
     continue_story
   rescue ValidationError => e
@@ -91,15 +96,9 @@ class Main
   def create_route
     if stations.any? && stations.size > 1
       puts 'ВЫБЕРИТЕ НАЧАЛЬНУЮ СТАНЦИЮ: '
-      stations.each_with_index { |s, i| puts "#{i + 1} - Станция #{s.name}" }
-      index = gets.chomp.to_i - 1
-      start_station = stations[index]
+      start_station = select_station(stations)
       puts 'ВЫБЕРИТЕ КОНЕЧНУЮ СТАНЦИЮ: '
-      stations_dup = stations.dup
-      stations_dup.delete(start_station)
-      stations_dup.each_with_index { |s, i| puts "#{i + 1} - Станция #{s.name}" }
-      index = gets.chomp.to_i - 1
-      end_station = stations_dup[index]
+      end_station = select_station(stations - [start_station])
       routes << Route.new(start_station, end_station)
       puts "СОЗДАН МАРШРУТ - ИЗ #{start_station} В #{end_station}"
     elsif stations == 1
@@ -116,13 +115,9 @@ class Main
       routes.each_with_index { |r, i| puts "#{i + 1} - Маршрут из #{r.first.name} в #{r.last.name}" }
       index = gets.chomp.to_i - 1
       selected_route = routes[index]
-      stations_dup = stations.dup
-      stations_dup = stations_dup.delete_if { |st| selected_route.show_route.include?(st) }
       if stations.any?
         puts 'ВЫБЕРИТЕ СТАНЦИЮ ДЛЯ ДОБАВЛЕНИЯ В МАРШРУТ'
-        stations_dup.each_with_index { |s, i| puts "#{i + 1} - Станция #{s.name}" }
-        index = gets.chomp.to_i - 1
-        selected_route.add_mid_station(stations_dup[index])
+        selected_route.add_mid_station(select_station(stations - selected_route.show_route))
       else
         puts 'ERROR - Нету станция для добавления. Добавьте еще'
       end
@@ -132,18 +127,20 @@ class Main
     continue_story
   end
 
+  def select_station(list_stations)
+    list_stations.each_with_index { |s, i| puts "#{i + 1} - Станция #{s.name}" }
+    index = gets.chomp.to_i - 1
+    list_stations[index]
+  end
+
   def define_route_for_train
     if trains.any?
-      puts 'ВЫБЕРИТЕ ПОЕЗД'
-      trains.each_with_index { |t, i| puts "#{i + 1} - Поезд  #{t.number}" }
-      index = gets.chomp.to_i - 1
-      selected_train = trains[index]
+      selected_train = select_train
       if routes.any?
         puts 'ВЫБЕРИТЕ МАРШРУТ'
         routes.each_with_index { |r, i| puts "#{i + 1} - Маршрут из #{r.first.name} в #{r.last.name}" }
         index = gets.chomp.to_i - 1
-        selected_route = routes[index]
-        selected_train.set_route(selected_route)
+        selected_train.set_route(routes[index])
         puts 'МАРШРУТ ДОБАВЛЕН'
       else
         puts 'НЕТУ МАРШРУТОВ'
@@ -160,16 +157,9 @@ class Main
     continue_story
   end
 
-  WAGON_DESCRIPTION = {
-    cargo: 'ВАГОН ГРУЗОВОЙ, ОБЪЕМ - %d м3, СВОБОДНО - %d м3',
-    passenger: 'ВАГОН ПАССАЖИРСКИЙ, КОЛ-ВО МЕСТ - %d шт, СВОБОДНО - %d шт'
-  }
-
   def show_list_of_trains
     puts 'ВЫБЕРИТЕ СТАНЦИЮ'
-    stations.each_with_index { |s, i| puts "#{i + 1} - Станция #{s.name}" }
-    index = gets.chomp.to_i - 1
-    selected_station = stations[index]
+    selected_station = selected_station(stations)
     puts 'СПИСОК ПОЕЗДОВ НА СТАНЦИИ: '
     selected_station.each_train do |t|
       puts "# ПОЕЗД #{t.number} #{t.type == :cargo ? 'ГРУЗОВОЙ' : 'ПАССАЖИРСКИЙ'} - #{t.wagons.size} ВАГОНА(ОВ)"
@@ -177,7 +167,6 @@ class Main
         puts "\t#{i}. #{format(WAGON_DESCRIPTION[w.type], w.capacity, w.free_capacity)}"
       end
     end
-
     continue_story
   end
 
@@ -252,7 +241,7 @@ class Main
     puts 'ВЫБЕРИТЕ ПОЕЗД'
     trains.each_with_index { |t, i| puts "#{i + 1} - Поезд  #{t.number}" }
     index = gets.chomp.to_i - 1
-    selected_train = trains[index]
+    trains[index]
   end
 
   def trains
