@@ -19,7 +19,7 @@ class Wagon
   end
 
   def take_capacity
-    free_capacity > 0 ? self.free_capacity -= 1 : false
+    free_capacity.positive? ? self.free_capacity -= 1 : false
   end
 
   def occupied_capacity
@@ -30,8 +30,8 @@ class Wagon
 
   def validate!
     errors = []
-    errors << "Тип вагона не может быть nil" if type.nil?
-    errors << "Укажите верный тип вагона (:cargo или :passenger)" unless TYPE.include?(type)
-    raise ValidationError.new errors.join("\n") unless errors.empty?
+    errors << 'Тип вагона не может быть nil' if type.nil?
+    errors << 'Укажите верный тип вагона (:cargo или :passenger)' unless TYPE.include?(type)
+    raise ValidationError, errors.join("\n") unless errors.empty?
   end
 end

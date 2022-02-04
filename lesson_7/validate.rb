@@ -1,8 +1,10 @@
 module Validate
-
   def valid?
-    validate! rescue return false
+    begin
+      validate!
+    rescue StandardError
+      return false
+    end
     true
   end
-
 end

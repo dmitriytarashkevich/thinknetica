@@ -1,17 +1,15 @@
-=begin
-  Класс Train (Поезд):
-  Имеет номер (произвольная строка) и тип (грузовой, пассажирский) и количество вагонов, эти данные указываются при создании экземпляра класса
-  Может набирать скорость
-  Может возвращать текущую скорость
-  Может тормозить (сбрасывать скорость до нуля)
-  Может возвращать количество вагонов
-  Может прицеплять/отцеплять вагоны (по одному вагону за операцию, метод просто увеличивает или уменьшает количество вагонов).
-  Прицепка/отцепка вагонов может осуществляться только если поезд не движется.
-  Может принимать маршрут следования (объект класса Route).
-  При назначении маршрута поезду, поезд автоматически помещается на первую станцию в маршруте.
-  Может перемещаться между станциями, указанными в маршруте. Перемещение возможно вперед и назад, но только на 1 станцию за раз.
-  Возвращать предыдущую станцию, текущую, следующую, на основе маршрута
-=end
+#   Класс Train (Поезд):
+#   Имеет номер (произвольная строка) и тип (грузовой, пассажирский) и количество вагонов, эти данные указываются при создании экземпляра класса
+#   Может набирать скорость
+#   Может возвращать текущую скорость
+#   Может тормозить (сбрасывать скорость до нуля)
+#   Может возвращать количество вагонов
+#   Может прицеплять/отцеплять вагоны (по одному вагону за операцию, метод просто увеличивает или уменьшает количество вагонов).
+#   Прицепка/отцепка вагонов может осуществляться только если поезд не движется.
+#   Может принимать маршрут следования (объект класса Route).
+#   При назначении маршрута поезду, поезд автоматически помещается на первую станцию в маршруте.
+#   Может перемещаться между станциями, указанными в маршруте. Перемещение возможно вперед и назад, но только на 1 станцию за раз.
+#   Возвращать предыдущую станцию, текущую, следующую, на основе маршрута
 
 require_relative 'factory'
 require_relative 'instance_counter'
@@ -32,7 +30,7 @@ class Train
   @@trains = []
 
   def self.find(number)
-    @@trains.find {|train| train.number == number}
+    @@trains.find { |train| train.number == number }
   end
 
   def initialize(number, type)
@@ -56,26 +54,26 @@ class Train
   end
 
   def add_wagon(wagon)
-    wagons << wagon if speed == 0
+    wagons << wagon if speed.zero?
   end
 
   def del_wagon(wagon)
-   wagons.delete(wagon) if speed == 0
+    wagons.delete(wagon) if speed.zero?
   end
 
   def set_route(route)
-   self.route = route
-   self.route_station_index = 0
-   current_station.receive_train(self)
+    self.route = route
+    self.route_station_index = 0
+    current_station.receive_train(self)
   end
 
   def move_next
     unless route
-      puts "No route"
+      puts 'No route'
       return
     end
     if route_station_index == route.show_route.size - 1
-      puts "Last station"
+      puts 'Last station'
       return
     end
     current_station.send_train(self)
@@ -85,11 +83,11 @@ class Train
 
   def move_prev
     unless route
-      puts "No route"
+      puts 'No route'
       return
     end
-    if route_station_index == 0
-      puts "First station"
+    if route_station_index.zero?
+      puts 'First station'
       return
     end
     current_station.send_train(self)
@@ -110,11 +108,11 @@ class Train
   end
 
   def current_station
-   route.show_route[route_station_index]
+    route.show_route[route_station_index]
   end
 
   def each_wagon(&block)
-    wagons.each { |wagon| block.call(wagon)  }
+    wagons.each { |wagon| block.call(wagon) }
   end
 
   def each_wagon_with_index(&block)
@@ -125,9 +123,9 @@ class Train
 
   def validate!
     errors = []
-    errors << "Параметры не могут быть nil" if number.nil? || type.nil?
-    errors << "Укажите верный тип поезда (:cargo или :passenger)" unless TYPE.include?(type)
-    errors << "Не верный формат номера поезда" if number !~ REGEX_NUMBER
-    raise ValidationError.new errors.join("\n") unless errors.empty?
+    errors << 'Параметры не могут быть nil' if number.nil? || type.nil?
+    errors << 'Укажите верный тип поезда (:cargo или :passenger)' unless TYPE.include?(type)
+    errors << 'Не верный формат номера поезда' if number !~ REGEX_NUMBER
+    raise ValidationError, errors.join("\n") unless errors.empty?
   end
 end

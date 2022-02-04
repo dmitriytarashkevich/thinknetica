@@ -1,5 +1,4 @@
 class WagonCargo < Wagon
-
   def initialize(capacity)
     super(:cargo, capacity)
   end
