@@ -14,17 +14,28 @@
 require_relative 'factory'
 require_relative 'instance_counter'
 require_relative 'exception/validation_error'
-require_relative 'validate'
+require_relative 'meta/validation'
+require_relative 'meta/acсessors'
 
 class Train
   include Factory
   include InstanceCounter
-  include Validate
-
-  attr_reader :type, :number, :wagons
-  attr_accessor :speed, :route, :route_station_index
+  include Validation
+  include Acсessors
 
   REGEX_NUMBER = /^[a-zа-я0-9]{3}(?:-[a-zа-я0-9]{2})?$/i
+
+  attr_reader :number, :wagons
+  attr_accessor_with_history :speed, :route, :route_station_index
+  strong_attr_accessor :type, Symbol
+
+  validate :number, :presence
+  validate :number, :format, REGEX_NUMBER
+  validate :type, :presence
+  validate :number, :type, String
+
+
+
   TYPE = %i[cargo passenger]
 
   @@trains = []
@@ -121,11 +132,11 @@ class Train
 
   protected
 
-  def validate!
-    errors = []
-    errors << 'Параметры не могут быть nil' if number.nil? || type.nil?
-    errors << 'Укажите верный тип поезда (:cargo или :passenger)' unless TYPE.include?(type)
-    errors << 'Не верный формат номера поезда' if number !~ REGEX_NUMBER
-    raise ValidationError, errors.join("\n") unless errors.empty?
-  end
+ # def validate!
+ #   errors = []
+ #   errors << 'Параметры не могут быть nil' if number.nil? || type.nil?
+ #   errors << 'Укажите верный тип поезда (:cargo или :passenger)' unless TYPE.include?(type)
+ #   errors << 'Не верный формат номера поезда' if number !~ REGEX_NUMBER
+ #   raise ValidationError, errors.join("\n") unless errors.empty?
+ # end
 end

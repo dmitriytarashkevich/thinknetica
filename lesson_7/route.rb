@@ -6,12 +6,16 @@
 #   Может выводить список всех станций по-порядку от начальной до конечной
 
 require_relative 'exception/validation_error'
-require_relative 'validate'
+require_relative 'meta/validation'
+require_relative 'meta/acсessors'
 
 class Route
-  include Validate
+  include Validation
+  include Acсessors
 
-  attr_reader :stations
+  attr_accessor :stations
+
+  validate :stations, :presence
 
   def initialize(start_station, end_station)
     @stations = [start_station, end_station]
@@ -36,11 +40,11 @@ class Route
 
   protected
 
-  def validate!
-    errors = []
-    errors << 'Станция не должна быть nil:' if stations.include? nil
-    errors << 'Не верный тип данных, ожидается Station.class' unless stations.all?(Station)
-    errors << 'Начальная и конечная станция должны быть разные' if first == last
-    raise ValidationError, errors.join("\n") unless errors.empty?
-  end
+#  def validate!
+#    errors = []
+#    errors << 'Станция не должна быть nil:' if stations.include? nil
+#    errors << 'Не верный тип данных, ожидается Station.class' unless stations.all?(Station)
+#   errors << 'Начальная и конечная станция должны быть разные' if first == last
+#    raise ValidationError, errors.join("\n") unless errors.empty?
+# end
 end

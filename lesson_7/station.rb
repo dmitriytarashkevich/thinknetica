@@ -7,13 +7,17 @@
 
 require_relative 'instance_counter'
 require_relative 'exception/validation_error'
-require_relative 'validate'
+require_relative 'meta/validation'
+require_relative 'meta/acсessors'
 
 class Station
   include InstanceCounter
-  include Validate
+  include Validation
+  include Acсessors
 
-  attr_reader :trains, :name
+  attr_accessor_with_history :trains, :name
+
+  validate :name, :presence
 
   @@stations = []
 
@@ -47,10 +51,10 @@ class Station
 
   protected
 
-  def validate!
-    errors = []
-    errors << 'Укажите название станции' if @name.nil? || @name.empty?
-    errors << 'Название должно начинаться с буквы' if @name =~ /^\d/
-    raise ValidationError, errors.join("\n") unless errors.empty?
-  end
+ # def validate!
+ #   errors = []
+ #   errors << 'Укажите название станции' if @name.nil? || @name.empty?
+ #   errors << 'Название должно начинаться с буквы' if @name =~ /^\d/
+ #   raise ValidationError, errors.join("\n") unless errors.empty?
+ # end
 end
