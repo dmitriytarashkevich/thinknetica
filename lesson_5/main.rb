@@ -51,11 +51,6 @@ attr_reader :trains_cargo, :trains_passenger, :wagons_cargo, :wagons_passenger, 
     { :text => "ПОСМОТРЕТЬ СПИСОК ПОЕЗДОВ НА СТАНЦИИ", :method => 'show_list_of_trains' }
   ]
 
-  def action_item(klass, action, arguments = [])
-    klass.send(action, *arguments)
-  end
-
-
   def create_station
     print "ВВЕДИТЕ НАЗВАНИЕ СТАНЦИИ: "
     name = gets.chomp
