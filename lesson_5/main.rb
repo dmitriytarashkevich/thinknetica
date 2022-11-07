@@ -222,7 +222,7 @@ attr_reader :trains_cargo, :trains_passenger, :wagons_cargo, :wagons_passenger, 
     puts "ВЫБЕРИТЕ ПОЕЗД"
     show_list_of(trains)
     index = gets.chomp.to_i - 1
-    selected_train = trains[index]
+    trains[index]
   end
 
   def show_list_of(list)
