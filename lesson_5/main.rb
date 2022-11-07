@@ -83,13 +83,13 @@ attr_reader :trains_cargo, :trains_passenger, :wagons_cargo, :wagons_passenger, 
   def create_route
     if stations.any? && stations.size > 1
       puts "ВЫБЕРИТЕ НАЧАЛЬНУЮ СТАНЦИЮ: "
-      stations.each_with_index { |s, i| puts "#{i+1} - Станция #{s.name}" }
+      show_list_of(stations)
       index = gets.chomp.to_i - 1
       start_station = stations[index]
       puts "ВЫБЕРИТЕ КОНЕЧНУЮ СТАНЦИЮ: "
       stations_dup = stations.dup
       stations_dup.delete(start_station)
-      stations_dup.each_with_index { |s, i| puts "#{i+1} - Станция #{s.name}" }
+      show_list_of(stations_dup)
       index = gets.chomp.to_i - 1
       end_station = stations_dup[index]
       routes << Route.new(start_station, end_station)
@@ -105,14 +105,14 @@ attr_reader :trains_cargo, :trains_passenger, :wagons_cargo, :wagons_passenger, 
   def add_station_to_route
     if routes.any?
       puts "ВЫБЕРИТЕ МАРШРУТ"
-      routes.each_with_index { |r , i| puts "#{i+1} - Маршрут из #{r.first.name} в #{r.last.name}" }
+      show_list_of(routes)
       index = gets.chomp.to_i - 1
       selected_route = routes[index]
       stations_dup = stations.dup
       stations_dup = stations_dup.delete_if { |st| selected_route.show_route.include?(st) }
       if stations.any?
         puts "ВЫБЕРИТЕ СТАНЦИЮ ДЛЯ ДОБАВЛЕНИЯ В МАРШРУТ"
-        stations_dup.each_with_index { |s, i| puts "#{i+1} - Станция #{s.name}" }
+        show_list_of(stations_dup)
         index = gets.chomp.to_i - 1
         selected_route.add_mid_station(stations_dup[index])
       else
@@ -127,12 +127,12 @@ attr_reader :trains_cargo, :trains_passenger, :wagons_cargo, :wagons_passenger, 
   def define_route_for_train
     if trains.any?
       puts "ВЫБЕРИТЕ ПОЕЗД"
-      trains.each_with_index { |t , i| puts "#{i+1} - Поезд  #{t.number}" }
+      show_list_of(trains)
       index = gets.chomp.to_i - 1
       selected_train = trains[index]
       if routes.any?
         puts "ВЫБЕРИТЕ МАРШРУТ"
-        routes.each_with_index { |r , i| puts "#{i+1} - Маршрут из #{r.first.name} в #{r.last.name}" }
+        show_list_of(routes)
         index = gets.chomp.to_i - 1
         selected_route = routes[index]
         selected_train.set_route(selected_route)
@@ -150,17 +150,17 @@ attr_reader :trains_cargo, :trains_passenger, :wagons_cargo, :wagons_passenger, 
 
   def show_list_of_stations
    puts "СПИСОК СТАНЦИЙ"
-   stations.each_with_index { |s, i| puts "#{i+1} - Станция #{s.name}" }
+   show_list_of(stations)
    continue_story
   end
 
   def show_list_of_trains
     puts "ВЫБЕРИТЕ СТАНЦИЮ"
-    stations.each_with_index { |s, i| puts "#{i+1} - Станция #{s.name}" }
+    show_list_of(stations)
     index = gets.chomp.to_i - 1
     selected_station = stations[index]
     puts "СПИСОК ПОЕЗДОВ НА СТАНЦИИ: "
-    selected_station.trains.each_with_index { |t, i| puts "#{i}. - ПОЕЗД #{t.number}"}
+    show_list_of(selected_station.trains)
     continue_story
   end
 
@@ -184,8 +184,6 @@ attr_reader :trains_cargo, :trains_passenger, :wagons_cargo, :wagons_passenger, 
     continue_story
   end
 
-
-
   def move_train
     selected_train = select_train
     puts "ВЫБЕРИТЕ КУДА ПОЕДЕТ ПОЕЗД"
@@ -204,9 +202,13 @@ attr_reader :trains_cargo, :trains_passenger, :wagons_cargo, :wagons_passenger, 
 
   def select_train
     puts "ВЫБЕРИТЕ ПОЕЗД"
-    trains.each_with_index { |t , i| puts "#{i+1} - Поезд  #{t.number}" }
+    show_list_of(trains)
     index = gets.chomp.to_i - 1
     selected_train = trains[index]
+  end
+
+  def show_list_of(list)
+    list.each_with_index { |el, i| puts "#{i + 1} - #{el}" }
   end
 
   def trains

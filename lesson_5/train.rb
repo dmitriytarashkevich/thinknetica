@@ -106,4 +106,8 @@ class Train
   def current_station
    route.show_route[route_station_index]
   end
+
+  def to_s
+    self.number.to_s
+  end
 end

@@ -14,6 +14,7 @@ class Station
 
 
   attr_reader :trains, :name
+  alias :to_s :name
 
   @@stations = []
 

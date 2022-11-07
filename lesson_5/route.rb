@@ -29,4 +29,8 @@ class Route
   def show_route
     stations
   end
+
+  def to_s
+    "Маршрут из #{first.name} в #{last.name}, промежуточные: #{(stations-[first, last]).join(', ')}"
+  end
 end
