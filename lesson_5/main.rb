@@ -23,10 +23,9 @@ class Main
   def show_menu
     system "clear"
     loop do
-      puts "0 - ВЫХОД"
-      MENU_STATION.each {|k, v| puts "#{k} - #{v[:text]}"}
-      menu_key = gets.chomp
-      return if menu_key == "0"
+      MENU_STATION.each_with_index {|h, i| puts "#{i} - #{h[:text]}"}
+      menu_key = gets.chomp.to_i
+      return if menu_key.zero?
 
       self.send(MENU_STATION[menu_key][:method])
       system "clear"
@@ -37,20 +36,20 @@ private
 
 attr_reader :trains_cargo, :trains_passenger, :wagons_cargo, :wagons_passenger, :routes, :stations
 
-  MENU_STATION = {
-    '1' => { :text => "СОЗДАТЬ СТАНЦИЮ", :method => 'create_station' },
-    '2' => { :text => "СОЗДАТЬ ГРУЗОВОЙ ПОЕЗД", :method => 'create_cargo_train' },
-    '3' => { :text => "СОЗДАТЬ ПАССАЖИРСКИЙ ПОЕЗД", :method => 'create_passenger_train' },
-    '4' => { :text => "СОЗДАТЬ МАРШРУТ", :method => 'create_route' },
-    '5' => { :text => "ДОБАВИТЬ СТАНЦИЮ В МАРШРУТ", :method => 'add_station_to_route' },
-    '6' => { :text => "НАЗНАЧИТЬ МАРШРУТ ПОЕЗДУ", :method => 'define_route_for_train' },
-    '7' => { :text => "ДОБАВИТЬ ВАГОН К ПОЕЗДУ", :method => 'add_wagon_to_train' },
-    '8' => { :text => "ОТЦЕПИТЬ ВАГОН ОТ ПОЕЗДА", :method => 'del_wagon_from_train' },
-    '9' => { :text => "ПЕРЕМЕСТИТЬ ПОЕЗД ПО МАРШРУТУ", :method => 'move_train' },
-    '10' => { :text => "ПОСМОТРЕТЬ СПИСОК СТАНЦИЙ", :method => 'show_list_of_stations' },
-    '11' => { :text => "ПОСМОТРЕТЬ СПИСОК ПОЕЗДОВ НА СТАНЦИИ", :method => 'show_list_of_trains' }
-
-  }
+  MENU_STATION = [
+    { :text => "ЗАВЕРШИТЬ"},
+    { :text => "СОЗДАТЬ СТАНЦИЮ", :method => 'create_station' },
+    { :text => "СОЗДАТЬ ГРУЗОВОЙ ПОЕЗД", :method => 'create_cargo_train' },
+    { :text => "СОЗДАТЬ ПАССАЖИРСКИЙ ПОЕЗД", :method => 'create_passenger_train' },
+    { :text => "СОЗДАТЬ МАРШРУТ", :method => 'create_route' },
+    { :text => "ДОБАВИТЬ СТАНЦИЮ В МАРШРУТ", :method => 'add_station_to_route' },
+    { :text => "НАЗНАЧИТЬ МАРШРУТ ПОЕЗДУ", :method => 'define_route_for_train' },
+    { :text => "ДОБАВИТЬ ВАГОН К ПОЕЗДУ", :method => 'add_wagon_to_train' },
+    { :text => "ОТЦЕПИТЬ ВАГОН ОТ ПОЕЗДА", :method => 'del_wagon_from_train' },
+    { :text => "ПЕРЕМЕСТИТЬ ПОЕЗД ПО МАРШРУТУ", :method => 'move_train' },
+    { :text => "ПОСМОТРЕТЬ СПИСОК СТАНЦИЙ", :method => 'show_list_of_stations' },
+    { :text => "ПОСМОТРЕТЬ СПИСОК ПОЕЗДОВ НА СТАНЦИИ", :method => 'show_list_of_trains' }
+  ]
 
   def action_item(klass, action, arguments = [])
     klass.send(action, *arguments)
