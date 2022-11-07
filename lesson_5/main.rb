@@ -18,6 +18,29 @@ class Main
     @wagons_passenger = []
     @routes = []
     @stations = []
+    #
+    # minsk = Station.new("Minsk")
+    # brest = Station.new("Brest")
+    # baranovichi = Station.new("Baranovichi")
+    # orsha = Station.new("Orsha")
+    # @stations = [minsk, brest, baranovichi, orsha]
+    #
+    # brest_minsk_route = Route.new(brest,minsk)
+    # brest_minsk_route.add_mid_station(baranovichi)
+    # minsk_orsha_route = Route.new(minsk,orsha)
+    # @routes = [brest_minsk_route,minsk_orsha_route]
+    #
+    # @wagons_cargo = [WagonCargo.new]
+    # @wagons_passenger = [WagonPassenger.new,WagonPassenger.new]
+    # train_cargo_1984 = TrainCargo.new(1984)
+    # train_cargo_1984.add_wagon(@wagons_cargo[0])
+    # @trains_cargo = [train_cargo_1984]
+    # train_passenger_1408 = TrainPassenger.new(1408)
+    # train_passenger_1408.add_wagon(@wagons_passenger[0])
+    # @trains_passenger = [train_passenger_1408]
+    #
+    # train_cargo_1984.set_route(brest_minsk_route)
+    # train_passenger_1408.set_route(minsk_orsha_route)
   end
 
   def show_menu
@@ -217,3 +240,5 @@ attr_reader :trains_cargo, :trains_passenger, :wagons_cargo, :wagons_passenger, 
     print ''
   end
 end
+
+Main.new.show_menu
