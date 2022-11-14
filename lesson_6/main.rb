@@ -18,15 +18,37 @@ class Main
     @wagons_passenger = []
     @routes = []
     @stations = []
+    #
+    # minsk = Station.new("Minsk")
+    # brest = Station.new("Brest")
+    # baranovichi = Station.new("Baranovichi")
+    # orsha = Station.new("Orsha")
+    # @stations = [minsk, brest, baranovichi, orsha]
+    #
+    # brest_minsk_route = Route.new(brest,minsk)
+    # brest_minsk_route.add_mid_station(baranovichi)
+    # minsk_orsha_route = Route.new(minsk,orsha)
+    # @routes = [brest_minsk_route,minsk_orsha_route]
+    #
+    # @wagons_cargo = [WagonCargo.new]
+    # @wagons_passenger = [WagonPassenger.new,WagonPassenger.new]
+    # train_cargo_1984 = TrainCargo.new(1984)
+    # train_cargo_1984.add_wagon(@wagons_cargo[0])
+    # @trains_cargo = [train_cargo_1984]
+    # train_passenger_1408 = TrainPassenger.new(1408)
+    # train_passenger_1408.add_wagon(@wagons_passenger[0])
+    # @trains_passenger = [train_passenger_1408]
+    #
+    # train_cargo_1984.set_route(brest_minsk_route)
+    # train_passenger_1408.set_route(minsk_orsha_route)
   end
 
   def show_menu
     system "clear"
     loop do
-      puts "0 - ВЫХОД"
-      MENU_STATION.each {|k, v| puts "#{k} - #{v[:text]}"}
-      menu_key = gets.chomp
-      return if menu_key == "0"
+      MENU_STATION.each_with_index {|h, i| puts "#{i} - #{h[:text]}"}
+      menu_key = gets.chomp.to_i
+      return if menu_key.zero?
 
       self.send(MENU_STATION[menu_key][:method])
       system "clear"
@@ -37,25 +59,20 @@ private
 
 attr_reader :trains_cargo, :trains_passenger, :wagons_cargo, :wagons_passenger, :routes, :stations
 
-  MENU_STATION = {
-    '1' => { :text => "СОЗДАТЬ СТАНЦИЮ", :method => 'create_station' },
-    '2' => { :text => "СОЗДАТЬ ГРУЗОВОЙ ПОЕЗД", :method => 'create_cargo_train' },
-    '3' => { :text => "СОЗДАТЬ ПАССАЖИРСКИЙ ПОЕЗД", :method => 'create_passenger_train' },
-    '4' => { :text => "СОЗДАТЬ МАРШРУТ", :method => 'create_route' },
-    '5' => { :text => "ДОБАВИТЬ СТАНЦИЮ В МАРШРУТ", :method => 'add_station_to_route' },
-    '6' => { :text => "НАЗНАЧИТЬ МАРШРУТ ПОЕЗДУ", :method => 'define_route_for_train' },
-    '7' => { :text => "ДОБАВИТЬ ВАГОН К ПОЕЗДУ", :method => 'add_wagon_to_train' },
-    '8' => { :text => "ОТЦЕПИТЬ ВАГОН ОТ ПОЕЗДА", :method => 'del_wagon_from_train' },
-    '9' => { :text => "ПЕРЕМЕСТИТЬ ПОЕЗД ПО МАРШРУТУ", :method => 'move_train' },
-    '10' => { :text => "ПОСМОТРЕТЬ СПИСОК СТАНЦИЙ", :method => 'show_list_of_stations' },
-    '11' => { :text => "ПОСМОТРЕТЬ СПИСОК ПОЕЗДОВ НА СТАНЦИИ", :method => 'show_list_of_trains' }
-
-  }
-
-  def action_item(klass, action, arguments = [])
-    klass.send(action, *arguments)
-  end
-
+  MENU_STATION = [
+    { :text => "ЗАВЕРШИТЬ"},
+    { :text => "СОЗДАТЬ СТАНЦИЮ", :method => 'create_station' },
+    { :text => "СОЗДАТЬ ГРУЗОВОЙ ПОЕЗД", :method => 'create_cargo_train' },
+    { :text => "СОЗДАТЬ ПАССАЖИРСКИЙ ПОЕЗД", :method => 'create_passenger_train' },
+    { :text => "СОЗДАТЬ МАРШРУТ", :method => 'create_route' },
+    { :text => "ДОБАВИТЬ СТАНЦИЮ В МАРШРУТ", :method => 'add_station_to_route' },
+    { :text => "НАЗНАЧИТЬ МАРШРУТ ПОЕЗДУ", :method => 'define_route_for_train' },
+    { :text => "ДОБАВИТЬ ВАГОН К ПОЕЗДУ", :method => 'add_wagon_to_train' },
+    { :text => "ОТЦЕПИТЬ ВАГОН ОТ ПОЕЗДА", :method => 'del_wagon_from_train' },
+    { :text => "ПЕРЕМЕСТИТЬ ПОЕЗД ПО МАРШРУТУ", :method => 'move_train' },
+    { :text => "ПОСМОТРЕТЬ СПИСОК СТАНЦИЙ", :method => 'show_list_of_stations' },
+    { :text => "ПОСМОТРЕТЬ СПИСОК ПОЕЗДОВ НА СТАНЦИИ", :method => 'show_list_of_trains' }
+  ]
 
   def create_station
     print "ВВЕДИТЕ НАЗВАНИЕ СТАНЦИИ: "
@@ -63,9 +80,6 @@ attr_reader :trains_cargo, :trains_passenger, :wagons_cargo, :wagons_passenger, 
     stations << Station.new(name)
     puts "СТАНЦИЯ '#{name}' СОЗДАНА"
     continue_story
-  rescue ValidationError => e
-    puts e
-    retry
   end
 
   def create_cargo_train
@@ -74,9 +88,6 @@ attr_reader :trains_cargo, :trains_passenger, :wagons_cargo, :wagons_passenger, 
     trains_cargo << TrainCargo.new(number)
     puts "ПОЕЗД '#{number}' СОЗДАН"
     continue_story
-  rescue ValidationError => e
-    puts e
-    retry  
   end
 
   def create_passenger_train
@@ -85,21 +96,18 @@ attr_reader :trains_cargo, :trains_passenger, :wagons_cargo, :wagons_passenger, 
     trains_cargo << TrainPassenger.new(number)
     puts "ПОЕЗД '#{number}' СОЗДАН"
     continue_story
-  rescue ValidationError => e
-    puts e
-    retry  
   end
 
   def create_route
     if stations.any? && stations.size > 1
       puts "ВЫБЕРИТЕ НАЧАЛЬНУЮ СТАНЦИЮ: "
-      stations.each_with_index { |s, i| puts "#{i+1} - Станция #{s.name}" }
+      show_list_of(stations)
       index = gets.chomp.to_i - 1
       start_station = stations[index]
       puts "ВЫБЕРИТЕ КОНЕЧНУЮ СТАНЦИЮ: "
       stations_dup = stations.dup
       stations_dup.delete(start_station)
-      stations_dup.each_with_index { |s, i| puts "#{i+1} - Станция #{s.name}" }
+      show_list_of(stations_dup)
       index = gets.chomp.to_i - 1
       end_station = stations_dup[index]
       routes << Route.new(start_station, end_station)
@@ -115,14 +123,14 @@ attr_reader :trains_cargo, :trains_passenger, :wagons_cargo, :wagons_passenger, 
   def add_station_to_route
     if routes.any?
       puts "ВЫБЕРИТЕ МАРШРУТ"
-      routes.each_with_index { |r , i| puts "#{i+1} - Маршрут из #{r.first.name} в #{r.last.name}" }
+      show_list_of(routes)
       index = gets.chomp.to_i - 1
       selected_route = routes[index]
       stations_dup = stations.dup
       stations_dup = stations_dup.delete_if { |st| selected_route.show_route.include?(st) }
       if stations.any?
         puts "ВЫБЕРИТЕ СТАНЦИЮ ДЛЯ ДОБАВЛЕНИЯ В МАРШРУТ"
-        stations_dup.each_with_index { |s, i| puts "#{i+1} - Станция #{s.name}" }
+        show_list_of(stations_dup)
         index = gets.chomp.to_i - 1
         selected_route.add_mid_station(stations_dup[index])
       else
@@ -137,12 +145,12 @@ attr_reader :trains_cargo, :trains_passenger, :wagons_cargo, :wagons_passenger, 
   def define_route_for_train
     if trains.any?
       puts "ВЫБЕРИТЕ ПОЕЗД"
-      trains.each_with_index { |t , i| puts "#{i+1} - Поезд  #{t.number}" }
+      show_list_of(trains)
       index = gets.chomp.to_i - 1
       selected_train = trains[index]
       if routes.any?
         puts "ВЫБЕРИТЕ МАРШРУТ"
-        routes.each_with_index { |r , i| puts "#{i+1} - Маршрут из #{r.first.name} в #{r.last.name}" }
+        show_list_of(routes)
         index = gets.chomp.to_i - 1
         selected_route = routes[index]
         selected_train.set_route(selected_route)
@@ -160,17 +168,17 @@ attr_reader :trains_cargo, :trains_passenger, :wagons_cargo, :wagons_passenger, 
 
   def show_list_of_stations
    puts "СПИСОК СТАНЦИЙ"
-   stations.each_with_index { |s, i| puts "#{i+1} - Станция #{s.name}" }
+   show_list_of(stations)
    continue_story
   end
 
   def show_list_of_trains
     puts "ВЫБЕРИТЕ СТАНЦИЮ"
-    stations.each_with_index { |s, i| puts "#{i+1} - Станция #{s.name}" }
+    show_list_of(stations)
     index = gets.chomp.to_i - 1
     selected_station = stations[index]
     puts "СПИСОК ПОЕЗДОВ НА СТАНЦИИ: "
-    selected_station.trains.each_with_index { |t, i| puts "#{i}. - ПОЕЗД #{t.number}"}
+    show_list_of(selected_station.trains)
     continue_story
   end
 
@@ -194,8 +202,6 @@ attr_reader :trains_cargo, :trains_passenger, :wagons_cargo, :wagons_passenger, 
     continue_story
   end
 
-
-
   def move_train
     selected_train = select_train
     puts "ВЫБЕРИТЕ КУДА ПОЕДЕТ ПОЕЗД"
@@ -214,9 +220,13 @@ attr_reader :trains_cargo, :trains_passenger, :wagons_cargo, :wagons_passenger, 
 
   def select_train
     puts "ВЫБЕРИТЕ ПОЕЗД"
-    trains.each_with_index { |t , i| puts "#{i+1} - Поезд  #{t.number}" }
+    show_list_of(trains)
     index = gets.chomp.to_i - 1
-    selected_train = trains[index]
+    trains[index]
+  end
+
+  def show_list_of(list)
+    list.each_with_index { |el, i| puts "#{i + 1} - #{el}" }
   end
 
   def trains
@@ -230,3 +240,5 @@ attr_reader :trains_cargo, :trains_passenger, :wagons_cargo, :wagons_passenger, 
     print ''
   end
 end
+
+Main.new.show_menu

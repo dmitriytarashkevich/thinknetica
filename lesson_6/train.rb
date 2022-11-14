@@ -15,35 +15,29 @@
 
 require_relative 'factory'
 require_relative 'instance_counter'
-require_relative 'exception/validation_error'
-require_relative 'validate'
 
 class Train
   include Factory
   include InstanceCounter
-  include Validate
 
   attr_reader :type, :number, :wagons
   attr_accessor :speed, :route, :route_station_index
-  
-  REGEX_NUMBER = /^[a-zа-я0-9]{3}(?:-[a-zа-я0-9]{2})?$/i
-  TYPE = %i[cargo passenger]
 
-  @@trains = []
+  @@trains = {}
 
   def self.find(number)
-    @@trains.find {|train| train.number == number}
+    @@trains[number]
   end
 
   def initialize(number, type)
+    raise "Укажите верный тип поезда (:cargo или :passenger)" unless [:cargo, :passenger].include?(type)
     @type = type
     @number = number
-    validate!
     @speed = 0
     @route = nil
     @route_station_index = nil
     @wagons = []
-    @@trains.push(self)
+    @@trains[number] = self
     register_instance
   end
 
@@ -113,13 +107,7 @@ class Train
    route.show_route[route_station_index]
   end
 
-  protected
-
-  def validate!
-    errors = []
-    errors << "Параметры не могут быть nil" if number.nil? || type.nil?
-    errors << "Укажите верный тип поезда (:cargo или :passenger)" unless TYPE.include?(type)
-    errors << "Не верный формат номера поезда" if number !~ REGEX_NUMBER
-    raise ValidationError.new errors.join("\n") unless errors.empty?
+  def to_s
+    self.number.to_s
   end
 end

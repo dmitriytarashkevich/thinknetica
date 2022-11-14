@@ -8,14 +8,13 @@
 =end
 
 require_relative 'instance_counter'
-require_relative 'exception/validation_error'
-require_relative 'validate'
 
 class Station
   include InstanceCounter
-  include Validate
+
 
   attr_reader :trains, :name
+  alias :to_s :name
 
   @@stations = []
 
@@ -25,7 +24,6 @@ class Station
 
   def initialize(name)
     @name = name
-    validate!
     @trains = []
     @@stations.push(self)
     register_instance
@@ -43,12 +41,4 @@ class Station
     trains.delete(train)
   end
 
-  protected
-  
-  def validate!
-    errors = []     
-    errors << 'Укажите название станции' if @name.nil? || @name.empty?
-    errors << 'Название должно начинаться с буквы' if @name =~ /^\d/
-    raise ValidationError.new errors.join("\n") unless errors.empty?
-  end
 end
