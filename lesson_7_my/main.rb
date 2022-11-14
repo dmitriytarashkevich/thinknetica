@@ -29,8 +29,8 @@ class Main
     # minsk_orsha_route = Route.new(minsk,orsha)
     # @routes = [brest_minsk_route,minsk_orsha_route]
     #
-    # @wagons_cargo = [WagonCargo.new]
-    # @wagons_passenger = [WagonPassenger.new,WagonPassenger.new]
+    # @wagons_cargo = [WagonCargo.new(100)]
+    # @wagons_passenger = [WagonPassenger.new(80),WagonPassenger.new(55)]
     # train_cargo_1984 = TrainCargo.new("123-qw")
     # train_cargo_1984.add_wagon(@wagons_cargo[0])
     # @trains << train_cargo_1984
