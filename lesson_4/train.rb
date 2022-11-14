@@ -24,7 +24,7 @@ class Train
     @number = number
     @speed = 0
     @route = nil
-    @route_staion_index = nil
+    @route_station_index = nil
     @wagons = []
   end
 

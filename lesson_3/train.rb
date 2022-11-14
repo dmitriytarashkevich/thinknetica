@@ -25,7 +25,7 @@ class Train
     @number_of_wagons = number_of_wagons
     @speed = 0
     @route = nil
-    @route_staion_index = nil
+    @route_station_index = nil
   end
 
   def increase_speed(speed)

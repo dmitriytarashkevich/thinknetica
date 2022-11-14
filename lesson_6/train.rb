@@ -41,7 +41,7 @@ class Train
     validate!
     @speed = 0
     @route = nil
-    @route_staion_index = nil
+    @route_station_index = nil
     @wagons = []
     @@trains.push(self)
     register_instance
