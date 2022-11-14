@@ -8,10 +8,11 @@
 =end
 
 require_relative 'instance_counter'
+require_relative 'validatable'
 
 class Station
   include InstanceCounter
-
+  include Validatable
 
   attr_reader :trains, :name
   alias :to_s :name
@@ -27,6 +28,12 @@ class Station
     @trains = []
     @@stations.push(self)
     register_instance
+  end
+
+  def validation_errors
+    errors = []
+    errors << "Only letters allowed in station name" unless @name =~ /^\p{L}+$/
+    errors
   end
 
   def train_types

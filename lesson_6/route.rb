@@ -7,11 +7,21 @@
   Может выводить список всех станций по-порядку от начальной до конечной
 =end
 
+require_relative 'validatable'
+
 class Route
+  include Validatable
+
   attr_reader :stations
 
   def initialize(start_station, end_station)
     @stations = [start_station, end_station]
+  end
+
+  def validation_errors
+    errors = []
+    errors << "Specify start-end stations" unless @stations.all?(Station)
+    errors
   end
 
   def add_mid_station(station)
@@ -31,6 +41,6 @@ class Route
   end
 
   def to_s
-    "Маршрут из #{first.name} в #{last.name}, промежуточные: #{(stations-[first, last]).join(', ')}"
+    "Route #{first.name} -> #{last.name} (intermediates: #{(stations-[first, last]).join(', ')})"
   end
 end

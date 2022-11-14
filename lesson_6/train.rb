@@ -15,10 +15,12 @@
 
 require_relative 'factory'
 require_relative 'instance_counter'
+require_relative 'validatable'
 
 class Train
   include Factory
   include InstanceCounter
+  include Validatable
 
   attr_reader :type, :number, :wagons
   attr_accessor :speed, :route, :route_station_index
@@ -30,7 +32,6 @@ class Train
   end
 
   def initialize(number, type)
-    raise "Укажите верный тип поезда (:cargo или :passenger)" unless [:cargo, :passenger].include?(type)
     @type = type
     @number = number
     @speed = 0
@@ -39,6 +40,14 @@ class Train
     @wagons = []
     @@trains[number] = self
     register_instance
+  end
+
+  def validation_errors
+    errors = []
+    errors << "Use format XXX-XX for train number" unless @number =~ /^[\p{L}\d]{3}-?[\p{L}\d]{2}$/
+    errors << "Specify train type" unless @type
+    errors << "Use only #{@type} wagons for #{self}" unless @wagons.all? {|w| w.type == @type }
+    errors
   end
 
   def increase_speed(speed)
@@ -51,10 +60,11 @@ class Train
 
   def add_wagon(wagon)
     wagons << wagon if speed == 0
+    validate!
   end
 
-  def del_wagon(wagon)
-   wagons.delete(wagon) if speed == 0
+  def del_wagon
+   wagons.pop if speed.zero? && wagons.any?
   end
 
   def set_route(route)
@@ -69,7 +79,7 @@ class Train
       return
     end
     if route_station_index == route.show_route.size - 1
-      puts "Last station"
+      puts "Already last station"
       return
     end
     current_station.send_train(self)
@@ -83,7 +93,7 @@ class Train
       return
     end
     if route_station_index == 0
-      puts "First station"
+      puts "Already first station"
       return
     end
     current_station.send_train(self)
@@ -108,6 +118,7 @@ class Train
   end
 
   def to_s
-    self.number.to_s
+    out_string = "#{type} train number: #{number} with #{wagons.count} wagons"
+    out_string + (@route_station_index ? " on station: #{current_station}" : " not on any route")
   end
 end
