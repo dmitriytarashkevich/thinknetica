@@ -39,6 +39,7 @@ class Main
     # @trains << train_passenger_1408
     #
     # train_cargo_1984.set_route(brest_minsk_route)
+    # train_passenger_1408.set_route(minsk_orsha_route)
   end
 
   def show_menu
@@ -70,6 +71,8 @@ attr_reader :trains, :wagons_cargo, :wagons_passenger, :routes, :stations
     move_train_on_its_route
     show_list_of_stations
     show_list_of_trains
+    show_stations_with_trains
+    take_place_in_wagon
   ]
 
   def create_station
@@ -197,19 +200,44 @@ attr_reader :trains, :wagons_cargo, :wagons_passenger, :routes, :stations
     puts "2. Backward"
     action = gets.chomp
     case action
-      when "1"
-        selected_train.move_next
-      when "2"
-        selected_train.move_prev
+    when "1"
+      selected_train.move_next
+    when "2"
+      selected_train.move_prev
     end
     puts selected_train
   end
 
-  def select(trains)
-    puts "Select train"
-    show_list_of(trains)
+  def show_stations_with_trains
+    stations.each do |station|
+      puts station
+      station.each_train do |t|
+        puts t
+        t.each_wagon { |w| puts w }
+      end
+    end
+  end
+
+  def take_place_in_wagon
+    selected_train = select(trains.filter do |t|
+      t.wagons.any? { |w| w.free_place.positive? }
+    end)
+    selected_wagon = select(selected_train.wagons)
+
+    if selected_wagon.type == :cargo
+      puts "Enter volume of cargo"
+      filled_place = selected_wagon.fill_place(gets.chomp.to_i)
+    else
+      filled_place = selected_wagon.fill_place
+    end
+    puts (filled_place ? "Took place in #{selected_wagon}" : "Try again")
+  end
+
+  def select(items)
+    puts "Select #{items[0].class.name.downcase}"
+    show_list_of(items)
     index = gets.chomp.to_i - 1
-    trains[index]
+    items[index]
   end
 
   def show_list_of(list)
