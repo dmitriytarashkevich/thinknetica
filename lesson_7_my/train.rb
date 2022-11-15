@@ -121,4 +121,8 @@ class Train
     out_string = "#{type} train number: #{number} with #{wagons.count} wagons"
     out_string + (@route_station_index ? " on station: #{current_station}" : " not on any route")
   end
+
+  def each_wagon(&block)
+    wagons.each(&block)
+  end
 end

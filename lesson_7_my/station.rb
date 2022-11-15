@@ -48,4 +48,8 @@ class Station
     trains.delete(train)
   end
 
+  def each_train(&block)
+    trains.each(&block)
+  end
+
 end
