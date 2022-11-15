@@ -1,3 +1,4 @@
+require_relative 'interactive_console_tools.rb'
 require 'io/console'
 
 require_relative 'train'
@@ -11,45 +12,50 @@ require_relative 'wagon_passenger'
 
 class Main
 
+  include InteractiveConsoleTools
+
   def initialize
     @trains = []
     @wagons_cargo = []
     @wagons_passenger = []
     @routes = []
     @stations = []
-    #
-    # minsk = Station.new("Minsk")
-    # brest = Station.new("Brest")
-    # baranovichi = Station.new("Baranovichi")
-    # orsha = Station.new("Orsha")
-    # @stations = [minsk, brest, baranovichi, orsha]
-    #
-    # brest_minsk_route = Route.new(brest,minsk)
-    # brest_minsk_route.add_mid_station(baranovichi)
-    # minsk_orsha_route = Route.new(minsk,orsha)
-    # @routes = [brest_minsk_route,minsk_orsha_route]
-    #
-    # @wagons_cargo = [WagonCargo.new(100)]
-    # @wagons_passenger = [WagonPassenger.new(80),WagonPassenger.new(55)]
-    # train_cargo_1984 = TrainCargo.new("123-qw")
-    # train_cargo_1984.add_wagon(@wagons_cargo[0])
-    # @trains << train_cargo_1984
-    # train_passenger_1408 = TrainPassenger.new("456as")
-    # train_passenger_1408.add_wagon(@wagons_passenger[0])
-    # @trains << train_passenger_1408
-    #
-    # train_cargo_1984.set_route(brest_minsk_route)
-    # train_passenger_1408.set_route(minsk_orsha_route)
+
+    minsk = Station.new("Minsk")
+    brest = Station.new("Brest")
+    baranovichi = Station.new("Baranovichi")
+    orsha = Station.new("Orsha")
+    @stations = [minsk, brest, baranovichi, orsha]
+
+    brest_minsk_route = Route.new(brest, minsk)
+    brest_minsk_route.add_mid_station(baranovichi)
+    minsk_orsha_route = Route.new(minsk, orsha)
+    @routes = [brest_minsk_route, minsk_orsha_route]
+
+    @wagons_cargo = [WagonCargo.new(100)]
+    @wagons_passenger = [WagonPassenger.new(80), WagonPassenger.new(55)]
+    train_cargo_1984 = TrainCargo.new("123-qw")
+    train_cargo_1984.add_wagon(@wagons_cargo[0])
+    @trains << train_cargo_1984
+    train_passenger_1408 = TrainPassenger.new("456as")
+    train_passenger_1408.add_wagon(@wagons_passenger[0])
+    @trains << train_passenger_1408
+
+    train_cargo_1984.set_route(brest_minsk_route)
+    train_passenger_1408.set_route(minsk_orsha_route)
   end
 
   def show_menu
     system "clear"
     loop do
-      MENU.each_with_index {|el, i| puts "#{i} - #{el.gsub("_", " ").capitalize}"}
-      menu_key = gets.chomp.to_i
-      return if menu_key.zero?
+      menu_action = select_using_console("menu item", MENU)
+      return if menu_action == 'terminate_program'
 
-      self.send(MENU[menu_key])
+      begin
+        self.send(menu_action)
+      rescue NothingToSelectException => e
+        puts e.message
+      end
       continue_story
     end
   end
@@ -70,14 +76,13 @@ attr_reader :trains, :wagons_cargo, :wagons_passenger, :routes, :stations
     remove_wagon_from_train
     move_train_on_its_route
     show_list_of_stations
-    show_list_of_trains
+    show_list_of_trains_on_station
     show_stations_with_trains
     take_place_in_wagon
   ]
 
   def create_station
-    print "Enter station name: "
-    name = gets.chomp
+    name = prompt("station name")
     stations << Station.new(name)
     puts "Station '#{name}' created"
   end
@@ -92,8 +97,7 @@ attr_reader :trains, :wagons_cargo, :wagons_passenger, :routes, :stations
 
   def create_train(trainClass)
     begin
-      print "Enter train number: "
-      new_train = trainClass.new(gets.chomp)
+      new_train = trainClass.new(prompt("train number"))
     rescue Validatable::ValidationError => e
       puts e.message
       retry
@@ -103,108 +107,54 @@ attr_reader :trains, :wagons_cargo, :wagons_passenger, :routes, :stations
   end
 
   def create_route
-    if stations.size > 1
-      puts "Select start station: "
-      show_list_of(stations)
-      index = gets.chomp.to_i - 1
-      start_station = stations[index]
-      puts "Select end station: "
-      stations_dup = stations.dup
-      stations_dup.delete(start_station)
-      show_list_of(stations_dup)
-      index = gets.chomp.to_i - 1
-      end_station = stations_dup[index]
-      routes << Route.new(start_station, end_station)
-      puts "Created route - from #{start_station} to #{end_station}"
-    else
-      puts "ERROR - You have #{stations.size} stations. Create at least 2 for creating a route"
-    end
+    start_station = select_using_console("start station", stations)
+    (other_stations = stations.dup).delete(start_station)
+    end_station = select_using_console("end station", other_stations)
+    new_route = Route.new(start_station, end_station)
+    routes << new_route
+    puts "Created: #{new_route}"
   end
 
   def add_station_to_route
-    if routes.any?
-      puts "Select route"
-      show_list_of(routes)
-      index = gets.chomp.to_i - 1
-      selected_route = routes[index]
-      stations_dup = stations.dup
-      stations_dup = stations_dup.delete_if { |st| selected_route.show_route.include?(st) }
-      if stations.any?
-        puts "Select station for adding to route"
-        show_list_of(stations_dup)
-        index = gets.chomp.to_i - 1
-        selected_route.add_mid_station(stations_dup[index])
-        puts "Updated #{selected_route}"
-      else
-        puts "ERROR - No available stations. Create new"
-      end
-    else
-      puts "ERROR - No available routes. Create new"
-    end
+    selected_route = select_using_console(routes)
+    other_stations = stations - selected_route.stations
+    selected_route.add_mid_station(select_using_console("other station", other_stations))
+    puts "Updated #{selected_route}"
   end
 
   def assign_route_for_train
-    if trains.any?
-      puts "Select train"
-      show_list_of(trains)
-      index = gets.chomp.to_i - 1
-      selected_train = trains[index]
-      if routes.any?
-        puts "Select route"
-        show_list_of(routes)
-        index = gets.chomp.to_i - 1
-        selected_route = routes[index]
-        selected_train.set_route(selected_route)
-        puts "#{selected_train} added to #{selected_route}"
-      else
-        puts "ERROR - No available routes. Create new"
-      end
-    else
-     puts "ERROR - No available trains. Create new"
-    end
+    selected_train = select_using_console("train", trains)
+    selected_route = select_using_console(routes)
+    selected_train.set_route(selected_route)
+    puts "#{selected_train} added to #{selected_route}"
   end
 
-  def show_list_of_stations
-   puts "Stations list"
-   show_list_of(stations)
-  end
-
-  def show_list_of_trains
-    puts "Select station"
+  def show_list_of_station7s
+    puts "Stations list"
     show_list_of(stations)
-    index = gets.chomp.to_i - 1
-    selected_station = stations[index]
-    puts "Trains list on station: "
-    show_list_of(selected_station.trains)
+  end
+
+  def show_list_of_trains_on_station
+    show_list_of(select_using_console(stations).trains)
   end
 
   def add_wagon_to_train
-    selected_train = select(trains)
-    selected_train.add_wagon(selected_train.class::WAGON_TYPE_CLASS.new)
+    selected_train = select_using_console("train", trains)
+    selected_train.add_new_wagon(prompt("capacity").to_i)
     puts "Wagon added to #{selected_train}"
   end
 
   def remove_wagon_from_train
-    selected_train = select(trains.filter{|t| t.wagons.any?})
-    if selected_train.del_wagon
-      puts "Wagon removed from #{selected_train}"
-    else
-      puts "Train already has no wagons"
-    end
+    selected_train = select_using_console("train with wagons", trains.filter { |t| t.wagons.any? })
+    selected_train.del_wagon
+    puts "Wagon removed from #{selected_train}"
   end
 
   def move_train_on_its_route
-    selected_train = select(trains.filter(&:route))
-    puts "Select train direction"
-    puts "1. Forward"
-    puts "2. Backward"
-    action = gets.chomp
-    case action
-    when "1"
-      selected_train.move_next
-    when "2"
-      selected_train.move_prev
-    end
+    selected_train = select_using_console("train on route", trains.filter(&:route))
+    actions = ["Move next station", "Move previous station"]
+    selected_action = select_using_console("train direction", actions)
+    selected_train.send(selected_action.gsub(' ', '_').downcase)
     puts selected_train
   end
 
@@ -219,38 +169,19 @@ attr_reader :trains, :wagons_cargo, :wagons_passenger, :routes, :stations
   end
 
   def take_place_in_wagon
-    selected_train = select(trains.filter do |t|
+    selected_train = select_using_console(trains.filter do |t|
       t.wagons.any? { |w| w.free_place.positive? }
     end)
-    selected_wagon = select(selected_train.wagons)
+    selected_wagon = select_using_console(selected_train.wagons)
 
     if selected_wagon.type == :cargo
-      puts "Enter volume of cargo"
-      filled_place = selected_wagon.fill_place(gets.chomp.to_i)
+      filled_place = selected_wagon.fill_place(prompt("volume of cargo").to_i)
     else
       filled_place = selected_wagon.fill_place
     end
     puts (filled_place ? "Took place in #{selected_wagon}" : "Try again")
   end
 
-  def select(items)
-    puts "Select #{items[0].class.name.downcase}"
-    show_list_of(items)
-    index = gets.chomp.to_i - 1
-    items[index]
-  end
-
-  def show_list_of(list)
-    list.each_with_index { |el, i| puts "#{i + 1} - #{el}" }
-  end
-
-  def continue_story
-    puts "_____________________________"
-    puts "press any key to continue..."
-    puts "_____________________________"
-    STDIN.getch
-    system "clear"
-  end
 end
 
 Main.new.show_menu

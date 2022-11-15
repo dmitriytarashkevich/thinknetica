@@ -63,17 +63,21 @@ class Train
     validate!
   end
 
+  def add_new_wagon(capacity)
+    add_wagon(self.class::WAGON_TYPE_CLASS.new(capacity))
+  end
+
   def del_wagon
-   wagons.pop if speed.zero? && wagons.any?
+    wagons.pop if speed.zero? && wagons.any?
   end
 
   def set_route(route)
-   self.route = route
-   self.route_station_index = 0
-   current_station.receive_train(self)
+    self.route = route
+    self.route_station_index = 0
+    current_station.receive_train(self)
   end
 
-  def move_next
+  def move_next_station
     unless route
       puts "No route"
       return
@@ -87,7 +91,7 @@ class Train
     current_station.receive_train(self)
   end
 
-  def move_prev
+  def move_previous_station
     unless route
       puts "No route"
       return
@@ -107,7 +111,7 @@ class Train
     route.show_route[route_station_index + 1]
   end
 
-  def prev_station
+  def previous_station
     return nil if route_station_index == 0
 
     route.show_route[route_station_index - 1]
