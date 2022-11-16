@@ -46,7 +46,7 @@ class Train
     errors = []
     errors << "Use format XXX-XX for train number" unless @number =~ /^[\p{L}\d]{3}-?[\p{L}\d]{2}$/
     errors << "Specify train type" unless @type
-    errors << "Use only #{@type} wagons for #{self}" unless @wagons.all? {|w| w.type == @type }
+    errors << "Use only #{@type} wagons for #{self}" unless @wagons.all? { |w| w.type == @type }
     errors
   end
 
@@ -118,7 +118,7 @@ class Train
   end
 
   def current_station
-   route.show_route[route_station_index]
+    route.show_route[route_station_index]
   end
 
   def to_s

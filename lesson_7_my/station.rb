@@ -37,7 +37,7 @@ class Station
   end
 
   def train_types
-    Hash[trains.group_by{|train| train.type}.map {|type, t| [type.to_s, t.count]}]
+    Hash[trains.group_by { |train| train.type }.map { |type, t| [type.to_s, t.count] }]
   end
 
   def receive_train(train)

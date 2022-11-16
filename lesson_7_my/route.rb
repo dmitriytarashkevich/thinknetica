@@ -27,7 +27,7 @@ class Route
   def add_mid_station(station)
     @stations.insert(-2, station)
   end
-  
+
   def first
     stations.first
   end
@@ -41,6 +41,6 @@ class Route
   end
 
   def to_s
-    "Route #{first.name} -> #{last.name} (intermediates: #{(stations-[first, last]).join(', ')})"
+    "Route #{first.name} -> #{last.name} (intermediates: #{(stations - [first, last]).join(', ')})"
   end
 end

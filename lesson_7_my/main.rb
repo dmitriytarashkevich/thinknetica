@@ -60,9 +60,9 @@ class Main
     end
   end
 
-private
+  private
 
-attr_reader :trains, :wagons_cargo, :wagons_passenger, :routes, :stations
+  attr_reader :trains, :wagons_cargo, :wagons_passenger, :routes, :stations
 
   MENU = %w[
     terminate_program
