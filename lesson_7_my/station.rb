@@ -1,21 +1,15 @@
-=begin
-  Класс Station (Станция):
-  Имеет название, которое указывается при ее создании
-  Может принимать поезда (по одному за раз)
-  Может возвращать список всех поездов на станции, находящиеся в текущий момент
-  Может возвращать список поездов на станции по типу (см. ниже): кол-во грузовых, пассажирских
-  Может отправлять поезда (по одному за раз, при этом, поезд удаляется из списка поездов, находящихся на станции).
-=end
+# frozen_string_literal: true
 
 require_relative 'instances'
 require_relative 'validatable'
 
+# Railway station entity
 class Station
   include Instances
   include Validatable
 
   attr_reader :trains, :name
-  alias :to_s :name
+  alias to_s name
 
   def initialize(name)
     @name = name
@@ -24,16 +18,16 @@ class Station
 
   def validation_errors
     errors = []
-    errors << "Only letters allowed in station name" unless @name =~ /^\p{L}+$/
+    errors << 'Only letters allowed in station name' unless @name =~ /^\p{L}+$/
     errors
   end
 
   def train_types
-    Hash[trains.group_by { |train| train.type }.map { |type, t| [type.to_s, t.count] }]
+    Hash[trains.group_by(&:type).map { |type, t| [type.to_s, t.count] }]
   end
 
   def receive_train(train)
-    self.trains << train
+    trains << train
   end
 
   def send_train(train)
@@ -43,5 +37,4 @@ class Station
   def each_train(&block)
     trains.each(&block)
   end
-
 end

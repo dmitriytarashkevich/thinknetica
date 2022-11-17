@@ -1,9 +1,13 @@
+# frozen_string_literal: true
+
+# Adds instances storing functionality
 module Instances
   def self.included(base)
     base.extend ClassMethods
     base.prepend InstanceMethods
   end
 
+  # Methods for extending
   module ClassMethods
     attr_accessor :instances
 
@@ -17,6 +21,7 @@ module Instances
     end
   end
 
+  # Methods for prependig
   module InstanceMethods
     def initialize(*args)
       super

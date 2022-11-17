@@ -1,15 +1,9 @@
-=begin
-  Класс Route (Маршрут):
-  Имеет начальную и конечную станцию, а также список промежуточных станций. 
-  Начальная и конечная станции указываютсся при создании маршрута, а промежуточные могут добавляться между ними.
-  Может добавлять промежуточную станцию в список
-  Может удалять промежуточную станцию из списка
-  Может выводить список всех станций по-порядку от начальной до конечной
-=end
+# frozen_string_literal: true
 
 require_relative 'instances'
 require_relative 'validatable'
 
+# Route between stations
 class Route
   include Validatable
   include Instances
@@ -22,7 +16,7 @@ class Route
 
   def validation_errors
     errors = []
-    errors << "Specify start-end stations" unless @stations.all?(Station)
+    errors << 'Specify start-end stations' unless @stations.all?(Station)
     errors
   end
 
@@ -36,10 +30,6 @@ class Route
 
   def last
     stations.last
-  end
-
-  def show_route
-    stations
   end
 
   def to_s

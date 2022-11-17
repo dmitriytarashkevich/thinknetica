@@ -1,22 +1,10 @@
-=begin
-  Класс Train (Поезд):
-  Имеет номер (произвольная строка) и тип (грузовой, пассажирский) и количество вагонов, эти данные указываются при создании экземпляра класса
-  Может набирать скорость
-  Может возвращать текущую скорость
-  Может тормозить (сбрасывать скорость до нуля)
-  Может возвращать количество вагонов
-  Может прицеплять/отцеплять вагоны (по одному вагону за операцию, метод просто увеличивает или уменьшает количество вагонов).
-  Прицепка/отцепка вагонов может осуществляться только если поезд не движется.
-  Может принимать маршрут следования (объект класса Route).
-  При назначении маршрута поезду, поезд автоматически помещается на первую станцию в маршруте.
-  Может перемещаться между станциями, указанными в маршруте. Перемещение возможно вперед и назад, но только на 1 станцию за раз.
-  Возвращать предыдущую станцию, текущую, следующую, на основе маршрута
-=end
+# frozen_string_literal: true
 
 require_relative 'factory'
 require_relative 'instances'
 require_relative 'validatable'
 
+# Railway train with wagons
 class Train
   include Factory
   include Instances
@@ -40,8 +28,8 @@ class Train
 
   def validation_errors
     errors = []
-    errors << "Use format XXX-XX for train number" unless @number =~ /^[\p{L}\d]{3}-?[\p{L}\d]{2}$/
-    errors << "Specify train type" unless @type
+    errors << 'Use format XXX-XX for train number' unless @number =~ /^[\p{L}\d]{3}-?[\p{L}\d]{2}$/
+    errors << 'Specify train type' unless @type
     errors << "Use only #{@type} wagons for #{self}" unless @wagons.all? { |w| w.type == @type }
     errors
   end
@@ -55,7 +43,7 @@ class Train
   end
 
   def add_wagon(wagon)
-    wagons << wagon if speed == 0
+    wagons << wagon if speed.zero?
     validate!
   end
 
@@ -67,59 +55,53 @@ class Train
     wagons.pop if speed.zero? && wagons.any?
   end
 
-  def set_route(route)
+  def place_to_route(route)
     self.route = route
     self.route_station_index = 0
     current_station.receive_train(self)
   end
 
   def move_next_station
-    unless route
-      puts "No route"
-      return
-    end
-    if route_station_index == route.show_route.size - 1
-      puts "Already last station"
-      return
-    end
+    raise 'No route' unless route
+    raise 'Already last station' unless next_station
+
     current_station.send_train(self)
     self.route_station_index += 1
     current_station.receive_train(self)
   end
 
   def move_previous_station
-    unless route
-      puts "No route"
-      return
-    end
-    if route_station_index == 0
-      puts "Already first station"
-      return
-    end
+    raise 'No route' unless route
+    raise 'Already first station' unless previous_station
+
     current_station.send_train(self)
     self.route_station_index -= 1
     current_station.receive_train(self)
   end
 
   def next_station
-    return nil if route_station_index == route.show_route.size - 1
+    return nil if route_station_index == route.stations.count - 1
 
-    route.show_route[route_station_index + 1]
+    route.stations[route_station_index + 1]
+  end
+
+  def place_available?
+    wagons.any?(&:place_available?)
   end
 
   def previous_station
-    return nil if route_station_index == 0
+    return nil if route_station_index.zero?
 
-    route.show_route[route_station_index - 1]
+    route.stations[route_station_index - 1]
   end
 
   def current_station
-    route.show_route[route_station_index]
+    route.stations[route_station_index]
   end
 
   def to_s
     out_string = "#{type} train number: #{number} with #{wagons.count} wagons"
-    out_string + (@route_station_index ? " on station: #{current_station}" : " not on any route")
+    out_string + (@route_station_index ? " on station: #{current_station}" : ' not on any route')
   end
 
   def each_wagon(&block)

@@ -1,5 +1,7 @@
-class WagonPassenger < Wagon
+# frozen_string_literal: true
 
+# Wagon for passenger train
+class WagonPassenger < Wagon
   def initialize(capacity)
     super(:passenger, capacity)
   end
@@ -7,5 +9,4 @@ class WagonPassenger < Wagon
   def fill_place
     super(1)
   end
-
 end
