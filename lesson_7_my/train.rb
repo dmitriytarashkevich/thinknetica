@@ -14,21 +14,19 @@
 =end
 
 require_relative 'factory'
-require_relative 'instance_counter'
+require_relative 'instances'
 require_relative 'validatable'
 
 class Train
   include Factory
-  include InstanceCounter
+  include Instances
   include Validatable
 
   attr_reader :type, :number, :wagons
   attr_accessor :speed, :route, :route_station_index
 
-  @@trains = {}
-
   def self.find(number)
-    @@trains[number]
+    instances.find { |train| train.number == number }
   end
 
   def initialize(number, type)
@@ -38,8 +36,6 @@ class Train
     @route = nil
     @route_station_index = nil
     @wagons = []
-    @@trains[number] = self
-    register_instance
   end
 
   def validation_errors

@@ -7,10 +7,12 @@
   Может выводить список всех станций по-порядку от начальной до конечной
 =end
 
+require_relative 'instances'
 require_relative 'validatable'
 
 class Route
   include Validatable
+  include Instances
 
   attr_reader :stations
 

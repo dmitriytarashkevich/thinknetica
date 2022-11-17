@@ -3,6 +3,10 @@ module InteractiveConsoleTools
   class NothingToSelectException < RuntimeError; end
 
   def select_using_console(item_name = nil, list_items)
+    if list_items.is_a?(Class)
+      item_name ||= list_items.name.downcase
+      list_items = list_items.instances
+    end
     item_name ||= list_items[0].class.name.downcase
     if list_items.any?
       puts "Select #{item_name}"

@@ -7,27 +7,19 @@
   Может отправлять поезда (по одному за раз, при этом, поезд удаляется из списка поездов, находящихся на станции).
 =end
 
-require_relative 'instance_counter'
+require_relative 'instances'
 require_relative 'validatable'
 
 class Station
-  include InstanceCounter
+  include Instances
   include Validatable
 
   attr_reader :trains, :name
   alias :to_s :name
 
-  @@stations = []
-
-  def self.all
-    @@stations
-  end
-
   def initialize(name)
     @name = name
     @trains = []
-    @@stations.push(self)
-    register_instance
   end
 
   def validation_errors
